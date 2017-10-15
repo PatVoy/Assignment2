@@ -59,9 +59,9 @@ int main(int argc, char** argv) {
             cout << *result;
         }
         
-        cout << "\nInsert next query or insert 'exit' to quit: ";
         getline(cin, usrInput);
-        cout << "\nUSER INPUT: " << usrInput;
+        
+        cout << "\nWORD: " << usrInput;
     }
     
     cout << "\nThank you for using the query app.\n"
