@@ -21,6 +21,7 @@
 #include <utility>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 #include "Document.h"
 #include "Tokenizer.h"

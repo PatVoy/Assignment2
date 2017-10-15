@@ -46,6 +46,12 @@ int main(int argc, char** argv) {
     vector<QueryResult> results;
     string usrInput;
     
+    cout << index[0].content() << endl;
+
+    index.printMatrix();
+    
+    return 0;
+    
     cout << "Welcome!" << endl;
     cout << "Please insert first query: ";
     getline(cin, usrInput);

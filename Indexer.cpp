@@ -24,7 +24,87 @@ Indexer::Indexer() {
 }
 
 void Indexer::printMatrix() {
+    int maxWordLen=0;
+    int maxFileNameLen=0;
+    int maxMetricLen = 0;
 
+    // Iterate over each word to get the maximum word length
+    for (ThreeMap::iterator word = wordMap.begin();
+         word != wordMap.end();
+         ++word)
+    {
+        if(word->first.length() > maxWordLen)
+            maxWordLen = word->first.length();
+    }
+
+    // Iterate over each document in the vector of documents to get the maximum
+    // document name
+    for (int i = 0; i < docVector.size(); i++)
+    {
+        if(docVector[i].name().length() > maxFileNameLen)
+            maxFileNameLen = docVector[i].name().length();
+    }
+    
+    // Iterate over the frequencies of the first document of the first word
+    // in the map to collect the maximum frequency name length
+    for (OneMap::iterator metric = wordMap.begin()->second.begin()->second.begin();
+            metric != wordMap.begin()->second.begin()->second.end();
+            ++metric) {
+        if (metric->first.length() > maxMetricLen) {
+            maxMetricLen = metric->first.length();
+        }
+    }
+    
+    // Keeps track of the totals for the full matrix
+    std::map< std::string , int > fullWordTotals;
+
+    int indexColumnLength = 1 + 1 + maxWordLen + 1;
+    int dataColumnLength = 1 + 1 + maxFileNameLen + 1;
+    int separationLineLength = indexColumnLength +
+                               (dataColumnLength * docVector.size()) + 1;
+    std::string separationLine(separationLineLength, '-');
+    std::string leftBorder = "| ";
+    std::string rightBorder = " |";
+    std::string midBorder = " | ";
+
+    // MATRIX HEADER
+
+    std::cout << "FULL MATRIX" << std::endl;
+    std::cout << separationLine << std::endl;
+    std::cout << leftBorder << std::setw(maxWordLen) << std::left << "Dictionary";
+    // Print out the file names
+    for (int i = 0; i < docVector.size(); i++) {
+        std::cout << std::setw(3) << midBorder
+                << std::setw(maxFileNameLen) << std::left << docVector[i].name();
+    }
+    std::cout << rightBorder << "\n" << separationLine << std::endl;
+
+    // MATRIX BODY
+
+    // Print each row
+    for (ThreeMap::iterator word = wordMap.begin();
+         word != wordMap.end();
+         ++word) {
+        std::cout << leftBorder << std::setw(maxWordLen) << std::left << word->first;
+
+        // Print each column for that row
+        for (int i = 0; i < docVector.size(); i++) {
+            std::cout << std::setw(3) << midBorder
+                    << std::setw(maxFileNameLen) << std::right
+                    << word->second[docVector[i].name()]["frequency"] << " | " << word->second[docVector[i].name()]["weight"];
+            fullWordTotals[docVector[i].name()] += word->second[docVector[i].name()]["frequency"];
+        }
+        std::cout << std::setw(2) << rightBorder << std::endl;  // Close last column
+    }
+    std::cout << separationLine << "\n" << std::setw(2) << leftBorder
+            << std::setw(maxWordLen) << std::left << "Total";
+    for (std::map<std::string, int>::iterator fileN = fullWordTotals.begin();
+            fileN != fullWordTotals.end();
+            ++fileN) {
+        std::cout << std::setw(3) << midBorder << std::setw(maxFileNameLen) << std::right
+                << fileN->second;
+    }
+    std::cout << std::setw(2) << rightBorder << "\n" << separationLine << "\n\n" << std::endl;
 }
 
 void Indexer::printReducedMatrix() {
@@ -38,6 +118,17 @@ const size_t Indexer::size() {
 const float Indexer::weight(const float & freq, 
                             const int & numDoc, 
                             const size_t & appearances) {
+    
+    
+    
+    
+    if (freq != 0) {
+        std::cout << "\nIN WEIGHT " << freq << " " << numDoc << " " << appearances << std::endl;
+    }
+    
+    
+    
+    
     // Check if the frequency is zero or if the term appears once in all
     // documents, which should result in a zero in both cases
     if (freq) {
@@ -128,13 +219,22 @@ const std::vector<QueryResult> Indexer::query(const std::string & usrQuery) {
     // Traverse map to insert the rest of the words in the token map and
     // calculate weights
     size_t numDoc = size();
-    int freq = 0;
-    int appearances = 0;
     for (ThreeMap::iterator word = wordMap.begin();
          word != wordMap.end();
          ++word) {
-        freq = tokenMap[word->first]["frequency"];
-        appearances = word->second.size();
+        int freq = tokenMap[word->first]["frequency"];
+        int appearances = 0;
+         
+        for (TwoMap::iterator doc = word->second.begin();
+                doc != word->second.end();
+                ++doc) {
+            std::cout << "\nFREQUENCY " << word->first << " " << doc->first << " " << doc->second["frequency"] << std::endl;
+            if (doc->second["frequency"] > 0) {
+                appearances++;
+                std::cout << "appearances: " << appearances << std::endl;
+            }
+        }
+        
         // Add the missing words and all of the weights to the tokens map
         tokenMap[word->first]["weight"] = weight(freq, numDoc, appearances);
     }
