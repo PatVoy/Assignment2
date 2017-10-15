@@ -24,6 +24,8 @@ Indexer::Indexer() {
 }
 
 void Indexer::printMatrix() {
+    std::string wordColHead = "Dictionary";
+    int wordColHeadLen = wordColHead.length();
     int maxWordLen=0;
     int maxFileNameLen=0;
     int maxMetricLen = 0;
@@ -36,6 +38,10 @@ void Indexer::printMatrix() {
         if(word->first.length() > maxWordLen)
             maxWordLen = word->first.length();
     }
+    
+    // If the word column header is longer than the maximum word length,
+    // update the values
+    maxWordLen = maxWordLen ? maxWordLen > wordColHeadLen : wordColHeadLen;
 
     // Iterate over each document in the vector of documents to get the maximum
     // document name
@@ -55,7 +61,7 @@ void Indexer::printMatrix() {
         }
     }
     
-    // Keeps track of the totals for the full matrix
+    // Keeps track of the totals for the matrix
     std::map< std::string , int > fullWordTotals;
 
     int indexColumnLength = 1 + 1 + maxWordLen + 1;
