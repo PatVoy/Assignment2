@@ -24,43 +24,35 @@ Indexer::Indexer() {
 }
 
 void Indexer::printMatrix() {
-    std::string wordColHead = "Dictionary";
-    int wordColHeadLen = wordColHead.length();
+    
     int maxWordLen=0;
     int maxFileNameLen=0;
-    int maxMetricLen = 0;
 
-    // Iterate over each word to get the maximum word length
-    for (ThreeMap::iterator word = wordMap.begin();
+    for (ThreeMap::iterator
+            word = wordMap.begin();                          
          word != wordMap.end();
          ++word)
     {
-        if(word->first.length() > maxWordLen)
-            maxWordLen = word->first.length();
+            if(word->first.length() > maxWordLen)
+                maxWordLen = word->first.length();
     }
-    
-    // Iterate over the frequencies of the first document of the first word
-    // in the map to collect the maximum frequency name length
-    for (OneMap::iterator metric = wordMap.begin()->second.begin()->second.begin();
-            metric != wordMap.begin()->second.begin()->second.end();
-            ++metric) {
-        if (metric->first.length() > maxMetricLen) {
-            maxMetricLen = metric->first.length();
-        }
+
+    for (int i = 0; i < docVector.size(); i++)
+    {
+        if(docVector[i].name().length() > maxFileNameLen)
+            maxFileNameLen = docVector[i].name().length();
     }
-    
-    // If the word column header is longer than the maximum word length,
-    // update the values
-    maxWordLen = maxWordLen ? maxWordLen > wordColHeadLen : wordColHeadLen;
-    
-    // Keeps track of the totals for the matrix
+
+
+
+    // Keeps track of the totals for the full matrix
     std::map< std::string , int > fullWordTotals;
 
-    int indexColLen = 1 + 1 + maxWordLen + 1;
-    int metricColLen = 1 + 1 + maxMetricLen + 1;
-    int docColLen = 2 * metricColLen;
-    int separationLineLen = indexColLen + (docColLen * docVector.size()) + 1;
-    std::string separationLine(separationLineLen, '-');
+    int indexColumnLength = 1 + 1 + maxWordLen + 1;
+    int dataColumnLength = 1 + 1 + maxFileNameLen + 1;
+    int separationLineLength = indexColumnLength +
+                               (dataColumnLength * docVector.size()) + 1;
+    std::string separationLine(separationLineLength, '-');
     std::string leftBorder = "| ";
     std::string rightBorder = " |";
     std::string midBorder = " | ";
@@ -88,11 +80,12 @@ void Indexer::printMatrix() {
         // Print each column for that row
         for (int i = 0; i < docVector.size(); i++) {
             std::cout << std::setw(3) << midBorder
-                    << std::setw(maxFileNameLen) << std::right
-                    << word->second[docVector[i].name()]["frequency"] << " | " << word->second[docVector[i].name()]["weight"];
+                    << word->second[docVector[i].name()]["frequency"] << " "
+                    << word->second[docVector[i].name()]["weight"] << std::right
+                     << "   ";
             fullWordTotals[docVector[i].name()] += word->second[docVector[i].name()]["frequency"];
         }
-        std::cout << std::setw(2) << rightBorder << std::endl;  // Close last column
+        std::cout << leftBorder << std::endl;  // Close last column
     }
     std::cout << separationLine << "\n" << std::setw(2) << leftBorder
             << std::setw(maxWordLen) << std::left << "Total";
@@ -106,7 +99,82 @@ void Indexer::printMatrix() {
 }
 
 void Indexer::printReducedMatrix() {
-    
+    int maxWordLen=0;
+    int maxFileNameLen=0;
+
+    for (ThreeMap::iterator
+            word = wordMap.begin();                           // THIS LOOKS HORRIBLE!!!!
+         word != wordMap.end();
+         ++word)
+    {
+            if(word->first.length() > maxWordLen)
+                maxWordLen = word->first.length();
+    }
+
+    for (int i = 0; i < docVector.size(); i++)
+    {
+        if(docVector[i].name().length() > maxFileNameLen)
+            maxFileNameLen = docVector[i].name().length();
+    }
+
+
+
+    // Keeps track of the totals for the full matrix
+    std::map< std::string , int > fullWordTotals;
+
+    int indexColumnLength = 1 + 1 + maxWordLen + 1;
+    int dataColumnLength = 1 + 1 + maxFileNameLen + 1;
+    int separationLineLength = indexColumnLength +
+                               (dataColumnLength * docVector.size()) + 1;
+    std::string separationLine(separationLineLength, '-');
+    std::string leftBorder = "| ";
+    std::string rightBorder = " |";
+    std::string midBorder = " | ";
+
+    // MATRIX HEADER
+
+    std::cout << "REDUCED MATRIX" << std::endl;
+    std::cout << separationLine << std::endl;
+    std::cout << leftBorder << std::setw(maxWordLen) << std::left << "Dictionary";
+    // Print out the file names
+    for (int i = 0; i < docVector.size(); i++) {
+        std::cout << std::setw(3) << midBorder
+                << std::setw(maxFileNameLen) << std::left << docVector[i].name();
+    }
+    std::cout << rightBorder << "\n" << separationLine << std::endl;
+
+    // MATRIX BODY
+
+    // Print each row
+        Stopwords wordList = Stopwords("C:/Users/Patrick/Documents/c++ stuff/COMP345/Assignment2-master/stopwords.txt");
+    for (ThreeMap::iterator word = wordMap.begin();
+         word != wordMap.end();
+         ++word) {
+
+             if (wordList(word->first)) {
+            continue;
+        }
+        std::cout << leftBorder << std::setw(maxWordLen) << std::left << word->first;
+
+        // Print each column for that row
+        for (int i = 0; i < docVector.size(); i++) {
+            std::cout << std::setw(3) << midBorder
+                    << word->second[docVector[i].name()]["frequency"] << " "
+                    << word->second[docVector[i].name()]["weight"] << std::right
+                     << "   ";
+            fullWordTotals[docVector[i].name()] += word->second[docVector[i].name()]["frequency"];
+        }
+        std::cout << leftBorder << std::endl;  // Close last column
+    }
+    std::cout << separationLine << "\n" << std::setw(2) << leftBorder
+            << std::setw(maxWordLen) << std::left << "Total";
+    for (std::map<std::string, int>::iterator fileN = fullWordTotals.begin();
+            fileN != fullWordTotals.end();
+            ++fileN) {
+        std::cout << std::setw(3) << midBorder << std::setw(maxFileNameLen) << std::right
+                << fileN->second;
+    }
+    std::cout << std::setw(2) << rightBorder << "\n" << separationLine << "\n\n" << std::endl;
 }
 
 const size_t Indexer::size() {
