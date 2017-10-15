@@ -38,14 +38,6 @@ void Indexer::printMatrix() {
         if(word->first.length() > maxWordLen)
             maxWordLen = word->first.length();
     }
-
-    // Iterate over each document in the vector of documents to get the maximum
-    // document name
-    for (int i = 0; i < docVector.size(); i++)
-    {
-        if(docVector[i].name().length() > maxFileNameLen)
-            maxFileNameLen = docVector[i].name().length();
-    }
     
     // Iterate over the frequencies of the first document of the first word
     // in the map to collect the maximum frequency name length
@@ -65,9 +57,8 @@ void Indexer::printMatrix() {
     std::map< std::string , int > fullWordTotals;
 
     int indexColLen = 1 + 1 + maxWordLen + 1;
-    int docColLen = 1 + 1 + maxFileNameLen + 1;
-    int metricColLen = 1 + 1 + maxMetricNameLen + 1;
-    docColLen = docColLen ? docColLen > 2*metricColLen : 2*metricColLen;
+    int metricColLen = 1 + 1 + maxMetricLen + 1;
+    int docColLen = 2 * metricColLen;
     int separationLineLen = indexColLen + (docColLen * docVector.size()) + 1;
     std::string separationLine(separationLineLen, '-');
     std::string leftBorder = "| ";
