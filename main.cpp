@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
             cout << *result;
         }
         
-        cout << "Insert next query or 'exit' to quit: "
+        cout << "Insert next query or 'exit' to quit: ";
         getline(cin, usrInput);
     }
     
