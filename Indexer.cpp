@@ -38,10 +38,6 @@ void Indexer::printMatrix() {
         if(word->first.length() > maxWordLen)
             maxWordLen = word->first.length();
     }
-    
-    // If the word column header is longer than the maximum word length,
-    // update the values
-    maxWordLen = maxWordLen ? maxWordLen > wordColHeadLen : wordColHeadLen;
 
     // Iterate over each document in the vector of documents to get the maximum
     // document name
@@ -61,14 +57,22 @@ void Indexer::printMatrix() {
         }
     }
     
+    // If the word column header is longer than the maximum word length,
+    // update the values
+    maxWordLen = maxWordLen ? maxWordLen > wordColHeadLen : wordColHeadLen;
+    
+    // Update the file name space to the bigger of either the max file name
+    // or twice the longest metric name
+    maxFileNameLen = maxFileNameLen ? maxFileNameLen > 2*maxMetricLen : 2*maxMetricLen;
+    
     // Keeps track of the totals for the matrix
     std::map< std::string , int > fullWordTotals;
 
-    int indexColumnLength = 1 + 1 + maxWordLen + 1;
-    int dataColumnLength = 1 + 1 + maxFileNameLen + 1;
-    int separationLineLength = indexColumnLength +
-                               (dataColumnLength * docVector.size()) + 1;
-    std::string separationLine(separationLineLength, '-');
+    int indexColLen = 1 + 1 + maxWordLen + 1;
+    int dataColLen = 1 + 1 + maxFileNameLen + 1 + 1;
+    int metricColLen = 0;
+    int separationLineLen = indexColLen + (dataColLen * docVector.size()) + 1;
+    std::string separationLine(separationLineLen, '-');
     std::string leftBorder = "| ";
     std::string rightBorder = " |";
     std::string midBorder = " | ";
@@ -138,7 +142,7 @@ const float Indexer::weight(const float & freq,
     // Check if the frequency is zero or if the term appears once in all
     // documents, which should result in a zero in both cases
     if (freq) {
-        return (1+log(freq))*log(float(numDoc)/appearances);
+        return roundf((1+log(freq))*log(float(numDoc)/appearances));
     } else {
         return 0;
     }
