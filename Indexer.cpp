@@ -61,17 +61,14 @@ void Indexer::printMatrix() {
     // update the values
     maxWordLen = maxWordLen ? maxWordLen > wordColHeadLen : wordColHeadLen;
     
-    // Update the file name space to the bigger of either the max file name
-    // or twice the longest metric name
-    maxFileNameLen = maxFileNameLen ? maxFileNameLen > 2*maxMetricLen : 2*maxMetricLen;
-    
     // Keeps track of the totals for the matrix
     std::map< std::string , int > fullWordTotals;
 
     int indexColLen = 1 + 1 + maxWordLen + 1;
-    int dataColLen = 1 + 1 + maxFileNameLen + 1 + 1;
-    int metricColLen = 0;
-    int separationLineLen = indexColLen + (dataColLen * docVector.size()) + 1;
+    int docColLen = 1 + 1 + maxFileNameLen + 1;
+    int metricColLen = 1 + 1 + maxMetricNameLen + 1;
+    docColLen = docColLen ? docColLen > 2*metricColLen : 2*metricColLen;
+    int separationLineLen = indexColLen + (docColLen * docVector.size()) + 1;
     std::string separationLine(separationLineLen, '-');
     std::string leftBorder = "| ";
     std::string rightBorder = " |";
